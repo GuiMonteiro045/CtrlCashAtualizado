@@ -7,9 +7,8 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Cabeçalho com a Logo -->
     <header>
-        <img src="logo.png" alt="Ctrl+Play - Tecnologia e Inovação" id="logo">
+        <img src="logo.png" alt="Logo CtrlCash" id="logo">
     </header>
 
     <!-- Área do Aluno -->
@@ -21,80 +20,41 @@
         <p id="resultado"></p>
     </section>
 
-    <!-- Área do Professor (Oculta por padrão) -->
-    <section id="area-professor" style="display: none;">
-        <h2>Área do Professor</h2>
-        <p>Atualize as moedas dos alunos:</p>
-        <input type="text" id="nome-aluno" placeholder="Nome do Aluno">
-        <input type="number" id="moedas" placeholder="Quantidade de Moedas">
-        <button onclick="atualizarMoedas()">Atualizar</button>
-    </section>
-
-    <!-- Botão para Acesso do Professor -->
-    <button id="acesso-professor" onclick="mostrarProfessor()">Acesso Professor</button>
-
-    <!-- Importação do JavaScript -->
     <script>
-        // URL da planilha pública
-        const planilhaURL = 'https://spreadsheets.google.com/feeds/list/2PACX-1vRHOWBU_s_yuPQYHF87BClWb429HeD5_fqCvlu9VEMVNbJONUKN21kgpchRewp23Gem4FmUCFei_Q2W/od6/public/values?alt=json';
+        // URL da planilha pública em JSON
+        const planilhaURL = 'https://spreadsheets.google.com/feeds/list/1KKIUVdIm92fmUYLCzX1ujMwhwS35JhAk1jewuHa4RsA/od6/public/values?alt=json';
 
-        // Função para buscar dados da planilha
-        function obterDadosDaPlanilha() {
-            return fetch(planilhaURL)
-                .then(response => response.json())
-                .then(data => {
-                    let alunos = {};
-                    data.feed.entry.forEach(item => {
-                        const nome = item.gsx$nome.$t;
-                        const moedas = parseInt(item.gsx$moedas.$t, 10);
-                        alunos[nome] = moedas;
-                    });
-                    return alunos;
-                })
-                .catch(error => console.error('Erro ao carregar os dados da planilha:', error));
-        }
+        // Função para buscar os dados da planilha
+        async function obterDadosDaPlanilha() {
+            try {
+                const response = await fetch(planilhaURL);
+                const data = await response.json();
 
-        // Consulta de moedas (Área do Aluno)
-        function consultarMoedas() {
-            const nome = document.getElementById('input-nome').value.trim().toLowerCase();
-            const resultado = document.getElementById('resultado');
+                // Processar os dados da planilha
+                const alunos = {};
+                data.feed.entry.forEach(entry => {
+                    const nome = entry.gsx$nomes.$t; // Nome da coluna "Nomes"
+                    const moedas = parseInt(entry.gsx$moedas.$t, 10); // Nome da coluna "Moedas"
+                    alunos[nome.toLowerCase()] = moedas; // Armazena os dados em um objeto
+                });
 
-            obterDadosDaPlanilha().then(alunos => {
-                let encontrado = false;
-                for (let aluno in alunos) {
-                    if (aluno.toLowerCase() === nome) {
-                        resultado.textContent = `${aluno} possui ${alunos[aluno]} CtrlCash.`;
-                        encontrado = true;
-                        break;
-                    }
-                }
-                if (!encontrado) {
-                    resultado.textContent = "Aluno não encontrado.";
-                }
-            });
-        }
-
-        // Mostra a Área do Professor com senha
-        function mostrarProfessor() {
-            const senha = prompt("Digite a senha para acessar a área do professor:");
-
-            if (senha === "admin123") { // Senha simples
-                document.getElementById('area-professor').style.display = 'block';
-            } else {
-                alert("Senha incorreta!");
+                return alunos;
+            } catch (error) {
+                console.error("Erro ao buscar dados da planilha:", error);
+                return {};
             }
         }
 
-        // Atualiza as moedas do aluno (Área do Professor)
-        function atualizarMoedas() {
-            const nome = document.getElementById('nome-aluno').value.trim();
-            const moedas = document.getElementById('moedas').value;
+        // Função para consultar moedas de um aluno
+        async function consultarMoedas() {
+            const nome = document.getElementById('input-nome').value.trim().toLowerCase();
+            const resultado = document.getElementById('resultado');
 
-            if (nome && moedas) {
-                alert(`CtrlCash de ${nome} foi atualizado para ${moedas} moedas.`);
-                // Aqui você pode fazer uma chamada para atualizar a planilha
+            const alunos = await obterDadosDaPlanilha();
+            if (alunos[nome]) {
+                resultado.textContent = `${nome} possui ${alunos[nome]} CtrlCash.`;
             } else {
-                alert("Preencha todos os campos corretamente.");
+                resultado.textContent = "Aluno não encontrado.";
             }
         }
     </script>
