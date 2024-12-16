@@ -1,48 +1,43 @@
-// Carrega os dados do Local Storage ou usa os dados padrão
-let alunos = JSON.parse(localStorage.getItem('alunos')) || {
-    "João Silva": 50,
-    "Maria Souza": 100,
-    "Pedro Oliveira": 75
-};
+// URL da planilha exportada como CSV
+const planilhaCSV = 'https://docs.google.com/spreadsheets/d/1KKIUVdIm92fmUYLCzX1ujMwhwS35JhAk1jewuHa4RsA/export?format=csv';
 
-// Salva os dados no Local Storage
-function salvarDados() {
-    localStorage.setItem('alunos', JSON.stringify(alunos));
+// Função para buscar e processar dados da planilha CSV
+async function obterDadosDaPlanilha() {
+    try {
+        const response = await fetch(planilhaCSV);
+        const csvData = await response.text();
+        const linhas = csvData.split('\n');
+        const alunos = {};
+
+        // Ignora a primeira linha (cabeçalho) e processa as demais
+        for (let i = 1; i < linhas.length; i++) {
+            const [nome, moedas] = linhas[i].split(',');
+
+            if (nome && moedas) {
+                alunos[nome.trim().toLowerCase()] = parseInt(moedas, 10);
+            }
+        }
+        return alunos;
+    } catch (error) {
+        console.error("Erro ao buscar dados da planilha:", error);
+        return null;
+    }
 }
 
-// Consulta de moedas (Área do Aluno)
-function consultarMoedas() {
-    const nome = document.getElementById('input-nome').value.trim();
+// Função para consultar moedas de um aluno
+async function consultarMoedas() {
+    const nome = document.getElementById('input-nome').value.trim().toLowerCase();
     const resultado = document.getElementById('resultado');
 
-    if (nome in alunos) {
-        resultado.textContent = `${nome} possui ${alunos[nome]} CtrlCash.`;
+    const alunos = await obterDadosDaPlanilha();
+
+    if (alunos) {
+        if (alunos[nome] !== undefined) {
+            resultado.textContent = `O aluno ${nome} possui ${alunos[nome]} CtrlCash.`;
+        } else {
+            resultado.textContent = "Aluno não encontrado. Verifique o nome digitado.";
+        }
     } else {
-        resultado.textContent = "Aluno não encontrado.";
-    }
-}
-
-// Mostra a Área do Professor com senha
-function mostrarProfessor() {
-    const senha = prompt("Digite a senha para acessar a área do professor:");
-
-    if (senha === "admin123") { // Senha simples
-        document.getElementById('area-professor').style.display = 'block';
-    } else {
-        alert("Senha incorreta!");
-    }
-}
-
-// Atualiza as moedas do aluno (Área do Professor)
-function atualizarMoedas() {
-    const nome = document.getElementById('nome-aluno').value.trim();
-    const moedas = document.getElementById('moedas').value;
-
-    if (nome && moedas) {
-        alunos[nome] = parseInt(moedas);
-        salvarDados(); // Salva os dados no Local Storage
-        alert(`CtrlCash de ${nome} foi atualizado para ${moedas} moedas.`);
-    } else {
-        alert("Preencha todos os campos corretamente.");
+        resultado.textContent = "Erro ao carregar os dados. Tente novamente mais tarde.";
     }
 }
