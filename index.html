@@ -7,8 +7,9 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Cabeçalho com a Logo -->
     <header>
-        <img src="logo.png" alt="Logo CtrlCash" id="logo">
+        <img src="logo.png" alt="Ctrl+Play - Tecnologia e Inovação" id="logo">
     </header>
 
     <!-- Área do Aluno -->
@@ -20,45 +21,7 @@
         <p id="resultado"></p>
     </section>
 
-    <script>
-        // URL da planilha pública em JSON
-        const planilhaURL = 'https://docs.google.com/spreadsheets/d/1KKIUVdIm92fmUYLCzX1ujMwhwS35JhAk1jewuHa4RsA/export?format=csv;
-
-        // Função para buscar os dados da planilha
-        async function obterDadosDaPlanilha() {
-            try {
-                const response = await fetch(planilhaURL);
-                const data = await response.json();
-
-                // Processar os dados da planilha
-                const alunos = {};
-                data.feed.entry.forEach(entry => {
-                    const nome = entry.gsx$nomes.$t.trim().toLowerCase(); // Captura a coluna "Nomes"
-                    const moedas = parseInt(entry.gsx$moedas.$t, 10); // Captura a coluna "Moedas"
-                    alunos[nome] = moedas; // Adiciona ao objeto alunos
-                });
-
-                return alunos;
-            } catch (error) {
-                console.error("Erro ao buscar dados da planilha:", error);
-                return {};
-            }
-        }
-
-        // Função para consultar moedas de um aluno
-        async function consultarMoedas() {
-            const nome = document.getElementById('input-nome').value.trim().toLowerCase();
-            const resultado = document.getElementById('resultado');
-
-            const alunos = await obterDadosDaPlanilha();
-
-            // Verifica se o nome está nos dados
-            if (alunos[nome] !== undefined) {
-                resultado.textContent = `O aluno ${nome} possui ${alunos[nome]} CtrlCash.`;
-            } else {
-                resultado.textContent = "Aluno não encontrado. Verifique o nome digitado.";
-            }
-        }
-    </script>
+    <!-- Importação do JavaScript -->
+    <script src="script.js"></script>
 </body>
 </html>
