@@ -35,28 +35,43 @@
 
     <!-- Importação do JavaScript -->
     <script>
-        // Carrega os dados do Local Storage ou usa os dados padrão
-        let alunos = JSON.parse(localStorage.getItem('alunos')) || {
-            "João Silva": 50,
-            "Maria Souza": 100,
-            "Pedro Oliveira": 75
-        };
+        // URL da planilha pública
+        const planilhaURL = 'https://spreadsheets.google.com/feeds/list/2PACX-1vRHOWBU_s_yuPQYHF87BClWb429HeD5_fqCvlu9VEMVNbJONUKN21kgpchRewp23Gem4FmUCFei_Q2W/od6/public/values?alt=json';
 
-        // Salva os dados no Local Storage
-        function salvarDados() {
-            localStorage.setItem('alunos', JSON.stringify(alunos));
+        // Função para buscar dados da planilha
+        function obterDadosDaPlanilha() {
+            return fetch(planilhaURL)
+                .then(response => response.json())
+                .then(data => {
+                    let alunos = {};
+                    data.feed.entry.forEach(item => {
+                        const nome = item.gsx$nome.$t;
+                        const moedas = parseInt(item.gsx$moedas.$t, 10);
+                        alunos[nome] = moedas;
+                    });
+                    return alunos;
+                })
+                .catch(error => console.error('Erro ao carregar os dados da planilha:', error));
         }
 
         // Consulta de moedas (Área do Aluno)
         function consultarMoedas() {
-            const nome = document.getElementById('input-nome').value.trim();
+            const nome = document.getElementById('input-nome').value.trim().toLowerCase();
             const resultado = document.getElementById('resultado');
 
-            if (nome in alunos) {
-                resultado.textContent = `${nome} possui ${alunos[nome]} CtrlCash.`;
-            } else {
-                resultado.textContent = "Aluno não encontrado.";
-            }
+            obterDadosDaPlanilha().then(alunos => {
+                let encontrado = false;
+                for (let aluno in alunos) {
+                    if (aluno.toLowerCase() === nome) {
+                        resultado.textContent = `${aluno} possui ${alunos[aluno]} CtrlCash.`;
+                        encontrado = true;
+                        break;
+                    }
+                }
+                if (!encontrado) {
+                    resultado.textContent = "Aluno não encontrado.";
+                }
+            });
         }
 
         // Mostra a Área do Professor com senha
@@ -76,9 +91,8 @@
             const moedas = document.getElementById('moedas').value;
 
             if (nome && moedas) {
-                alunos[nome] = parseInt(moedas);
-                salvarDados(); // Salva os dados no Local Storage
                 alert(`CtrlCash de ${nome} foi atualizado para ${moedas} moedas.`);
+                // Aqui você pode fazer uma chamada para atualizar a planilha
             } else {
                 alert("Preencha todos os campos corretamente.");
             }
