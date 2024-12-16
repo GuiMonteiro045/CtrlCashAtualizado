@@ -33,9 +33,9 @@
                 // Processar os dados da planilha
                 const alunos = {};
                 data.feed.entry.forEach(entry => {
-                    const nome = entry.gsx$nomes.$t; // Nome da coluna "Nomes"
-                    const moedas = parseInt(entry.gsx$moedas.$t, 10); // Nome da coluna "Moedas"
-                    alunos[nome.toLowerCase()] = moedas; // Armazena os dados em um objeto
+                    const nome = entry.gsx$nomes.$t.trim().toLowerCase(); // Captura a coluna "Nomes"
+                    const moedas = parseInt(entry.gsx$moedas.$t, 10); // Captura a coluna "Moedas"
+                    alunos[nome] = moedas; // Adiciona ao objeto alunos
                 });
 
                 return alunos;
@@ -51,10 +51,12 @@
             const resultado = document.getElementById('resultado');
 
             const alunos = await obterDadosDaPlanilha();
-            if (alunos[nome]) {
-                resultado.textContent = `${nome} possui ${alunos[nome]} CtrlCash.`;
+
+            // Verifica se o nome está nos dados
+            if (alunos[nome] !== undefined) {
+                resultado.textContent = `O aluno ${nome} possui ${alunos[nome]} CtrlCash.`;
             } else {
-                resultado.textContent = "Aluno não encontrado.";
+                resultado.textContent = "Aluno não encontrado. Verifique o nome digitado.";
             }
         }
     </script>
