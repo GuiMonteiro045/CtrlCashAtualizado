@@ -4,8 +4,17 @@ const planilhaCSV = 'https://docs.google.com/spreadsheets/d/1KKIUVdIm92fmUYLCzX1
 // Função para buscar e processar dados da planilha CSV
 async function obterDadosDaPlanilha() {
     try {
+        console.log("Buscando dados da planilha...");
         const response = await fetch(planilhaCSV);
+
+        // Verifica se a requisição foi bem-sucedida
+        if (!response.ok) {
+            throw new Error(`Erro HTTP: ${response.status}`);
+        }
+
         const csvData = await response.text();
+        console.log("Dados recebidos da planilha:", csvData);
+
         const linhas = csvData.split('\n');
         const alunos = {};
 
@@ -17,6 +26,7 @@ async function obterDadosDaPlanilha() {
                 alunos[nome.trim().toLowerCase()] = parseInt(moedas, 10);
             }
         }
+        console.log("Dados processados:", alunos);
         return alunos;
     } catch (error) {
         console.error("Erro ao buscar dados da planilha:", error);
@@ -28,6 +38,8 @@ async function obterDadosDaPlanilha() {
 async function consultarMoedas() {
     const nome = document.getElementById('input-nome').value.trim().toLowerCase();
     const resultado = document.getElementById('resultado');
+
+    resultado.textContent = "Consultando...";
 
     const alunos = await obterDadosDaPlanilha();
 
