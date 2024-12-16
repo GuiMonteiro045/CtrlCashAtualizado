@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CtrlCash - Sistema de Moedas</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Cabeçalho com a Logo -->
+    <header>
+        <img src="logo.png" alt="Ctrl+Play - Tecnologia e Inovação" id="logo">
+    </header>
+
+    <!-- Área do Aluno -->
+    <section id="area-aluno">
+        <h2>Consulta de CtrlCash</h2>
+        <p>Digite seu nome para consultar suas moedas:</p>
+        <input type="text" id="input-nome" placeholder="Digite seu nome">
+        <button onclick="consultarMoedas()">Consultar</button>
+        <p id="resultado"></p>
+    </section>
+
+    <!-- Área do Professor (Oculta por padrão) -->
+    <section id="area-professor" style="display: none;">
+        <h2>Área do Professor</h2>
+        <p>Atualize as moedas dos alunos:</p>
+        <input type="text" id="nome-aluno" placeholder="Nome do Aluno">
+        <input type="number" id="moedas" placeholder="Quantidade de Moedas">
+        <button onclick="atualizarMoedas()">Atualizar</button>
+    </section>
+
+    <!-- Botão para Acesso do Professor -->
+    <button id="acesso-professor" onclick="mostrarProfessor()">Acesso Professor</button>
+
+    <!-- Importação do JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>
